@@ -39,7 +39,7 @@ export default function Campaign() {
 
     const checkBackend = async () => {
       try {
-        const { data } = await API.get("/health");
+        const { data } = await API.get("health");
         if (cancelled) {
           return;
         }
@@ -63,7 +63,7 @@ export default function Campaign() {
     checkBackend();
     intervalId = window.setInterval(checkBackend, 2000);
 
-    API.get("/campaign/templates")
+    API.get("campaign/templates")
       .then((res) => {
         const data = Array.isArray(res.data) ? res.data : [];
         setTemplates(data);
@@ -76,7 +76,7 @@ export default function Campaign() {
       })
       .catch(() => setTemplates([]));
 
-    API.get("/targets")
+    API.get("targets")
       .then((res) => {
         setTargets(Array.isArray(res.data) ? res.data : []);
       })
@@ -103,7 +103,7 @@ export default function Campaign() {
   const createCampaign = async () => {
     try {
       setIsError(false);
-      const { data } = await API.post("/campaign/create", {
+      const { data } = await API.post("campaign/create", {
         name: campaignName,
         template,
         template_id: selectedTemplateId,
@@ -121,7 +121,7 @@ export default function Campaign() {
   const send = async () => {
     try {
       setIsError(false);
-      const { data } = await API.post("/campaign/send", {
+      const { data } = await API.post("campaign/send", {
         campaign_id: Number(campaignId),
         test_email: email,
         mode: sendMode
@@ -147,7 +147,7 @@ export default function Campaign() {
   const createTarget = async () => {
     try {
       setIsError(false);
-      const { data } = await API.post("/targets", targetForm);
+      const { data } = await API.post("targets", targetForm);
       setTargets((prev) => [...prev, data]);
       setTargetForm({
         first_name: "",

@@ -18,7 +18,7 @@ export default function Dashboard() {
   const [targets, setTargets] = useState([]);
 
   useEffect(() => {
-    API.get("/analytics")
+    API.get("analytics")
       .then((res) => {
         setStats(res.data);
         setStatus("Live metrics loaded from the backend.");
@@ -27,11 +27,11 @@ export default function Dashboard() {
         setStatus(getApiErrorMessage(error, "Analytics could not be loaded."));
       });
 
-    API.get("/campaign")
+    API.get("campaign")
       .then((res) => setCampaigns(Array.isArray(res.data) ? res.data : []))
       .catch(() => setCampaigns([]));
 
-    API.get("/targets")
+    API.get("targets")
       .then((res) => setTargets(Array.isArray(res.data) ? res.data : []))
       .catch(() => setTargets([]));
   }, []);
