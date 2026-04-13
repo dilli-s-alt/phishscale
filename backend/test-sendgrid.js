@@ -1,20 +1,16 @@
-import { sendEmail } from "./src/services/emailService.js";
-import "dotenv/config";
+import sgMail from "@sendgrid/mail";
+import dotenv from "dotenv";
+dotenv.config();
 
-const testSendGrid = async () => {
-  console.log("Testing SendGrid integration...");
-  
-  const result = await sendEmail({
-    to: "trainyourcompany1@gmail.com", // testing with the same email as sender for verification
-    subject: "SendGrid Test - PhishScale",
-    html: "<h1>PhishScale SendGrid Test</h1><p>If you are reading this, SendGrid integration is working correctly!</p>"
-  });
+sgMail.setApiKey(process.env.SENDGRID_API_KEY || "");
 
-  if (result.status === "sent") {
-    console.log("✅ Success! Email sent via", result.provider);
-  } else {
-    console.error("❌ Failed to send email:", result.error);
-  }
+const msg = {
+  to: "trainyourcompany1@gmail.com",
+  from: process.env.SENDGRID_FROM_EMAIL || "trainyourcompany1@gmail.com",
+  subject: "PhishScale Test",
+  text: "Testing SendGrid connection",
 };
 
-testSendGrid().catch(console.error);
+sgMail.send(msg)
+  .then(() => console.log("SendGrid Success"))
+  .catch((err) => console.error("SendGrid Error:", err.response ? err.response.body : err.message));
