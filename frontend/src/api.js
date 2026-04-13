@@ -13,7 +13,7 @@ const getBaseURL = () => {
 
 export const API = axios.create({
   baseURL: getBaseURL(),
-  timeout: 10000
+  timeout: 60000
 });
 
 export const getApiErrorMessage = (error, fallbackMessage) => {

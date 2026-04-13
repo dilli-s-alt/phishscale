@@ -216,6 +216,21 @@ export default function Campaign() {
                 onChange={(e) => setTemplate(e.target.value)}
               />
             </div>
+
+            <div className="preview-box">
+              <span className="eyebrow">Visual Preview</span>
+              <div 
+                className="email-render-preview"
+                dangerouslySetInnerHTML={{ 
+                  __html: template
+                    .replace(/{{first_name}}/g, "Demo")
+                    .replace(/{{last_name}}/g, "User")
+                    .replace(/{{department}}/g, "Engineering")
+                    .replace(/{{tracking_url}}/g, "#")
+                    .replace(/{{id}}/g, "123")
+                }} 
+              />
+            </div>
           </div>
 
           <div className="button-row">
