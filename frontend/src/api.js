@@ -6,9 +6,9 @@ const getBaseURL = () => {
   }
   // Production fallback for Vercel deployment
   if (window.location.hostname.includes("vercel.app")) {
-    return "https://phishscale-n2li.onrender.com/api";
+    return "https://phishscale-n2li.onrender.com/api/";
   }
-  return "/api";
+  return "/api/";
 };
 
 export const API = axios.create({
