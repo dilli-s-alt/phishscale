@@ -1,7 +1,18 @@
 import axios from "axios";
 
+const getBaseURL = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+  // Production fallback for Vercel deployment
+  if (window.location.hostname.includes("vercel.app")) {
+    return "https://phishscale-n2li.onrender.com/api";
+  }
+  return "/api";
+};
+
 export const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "/api",
+  baseURL: getBaseURL(),
   timeout: 10000
 });
 
