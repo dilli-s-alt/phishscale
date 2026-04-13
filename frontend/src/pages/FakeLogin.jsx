@@ -10,7 +10,7 @@ export default function FakeLogin() {
   const [step, setStep] = useState("email");
 
   const submit = async () => {
-    await API.post("track/submit", {
+    await API.post("/api/track/submit", {
       tracking_id: tid
     });
     window.location.href = "/caught";
