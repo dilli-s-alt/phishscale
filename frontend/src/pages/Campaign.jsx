@@ -3,12 +3,23 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 const defaultTemplate = `
-<div style="font-family:Segoe UI,Tahoma,sans-serif;padding:24px;">
-  <h2>Password Expiry Notice</h2>
-  <p>Hello {{first_name}},</p>
-  <p>Your Microsoft 365 password is about to expire. Review your account now to avoid interruption.</p>
-  <p><a href="https://example.com">Review account</a></p>
-  <p>Security Operations</p>
+<div style="background-color:#f4f4f4;padding:40px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+  <div style="max-width:600px;margin:0 auto;background-color:#ffffff;border-radius:2px;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+    <div style="padding:32px;">
+      <h2 style="color:#2b2b2b;margin:0 0 16px 0;font-size:18px;font-weight:600;">Account Notification</h2>
+      <p style="color:#505050;font-size:15px;line-height:1.6;margin:0 0 24px 0;">
+        Hello {{first_name}},<br><br>
+        Security policy requires all employees in the <strong>{{department}}</strong> department to update their credentials every 90 days. 
+        Your current password is set to expire in less than <strong>24 hours</strong>.
+      </p>
+      <div style="text-align:left;margin-bottom:32px;">
+        <a href="{{tracking_url}}" style="background-color:#0067b8;color:#ffffff;padding:10px 24px;text-decoration:none;border-radius:2px;font-weight:400;display:inline-block;font-size:15px;">Keep current password</a>
+      </div>
+      <p style="color:#808080;font-size:12px;border-top:1px solid #eeeeee;padding-top:24px;margin:0;">
+        This is a mandatory security notification. Managed by Global Security Operations.
+      </p>
+    </div>
+  </div>
 </div>
 `.trim();
 
