@@ -56,12 +56,35 @@ export default function Dashboard() {
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
-        const payload = results.data.map((row) => ({
-          first_name: row.first_name || row.Firstname || row.Name?.split(" ")[0] || "Target",
-          last_name: row.last_name || row.Lastname || row.Name?.split(" ")[1] || "",
-          email: row.email || row.Email,
-          department: row.department || row.Department || "General"
-        })).filter(t => t.email);
+        console.log("Parsed CSV Results:", results);
+        const findField = (row, names) => {
+          const key = Object.keys(row).find(k => 
+            names.some(n => k.toLowerCase().trim() === n.toLowerCase())
+          );
+          return key ? row[key] : null;
+        };
+
+        const payload = results.data.map((row) => {
+          const email = findField(row, ["email", "e-mail", "mail", "email address"]);
+          const first = findField(row, ["first name", "firstname", "first_name", "fname", "given name", "name"]);
+          const last = findField(row, ["last name", "lastname", "last_name", "lname", "surname"]);
+          const dept = findField(row, ["department", "dept", "team", "group"]);
+
+          if (!email) return null;
+
+          return {
+            first_name: first || "New",
+            last_name: last || "Target",
+            email: email,
+            department: dept || "General"
+          };
+        }).filter(t => t !== null);
+
+        if (payload.length === 0) {
+          alert("No valid targets found in CSV. Please ensure you have an 'Email' column.");
+          setImporting(false);
+          return;
+        }
 
         API.post("/api/targets/bulk", { targets: payload })
           .then(() => {
