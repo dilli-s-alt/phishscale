@@ -187,12 +187,11 @@ export default function Dashboard() {
   const departmentRows = Object.values(departmentSummary || {});
 
   return (
-    <div className="page-shell">
-      <div className="dashboard-shell">
+    <>
         <section className="hero-banner">
           <span className="eyebrow">Simulation Overview</span>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h1 className="page-title">PhishScale Dashboard</h1>
+            <h1 className="page-title">Simulation Live Feed</h1>
             <div style={{ display: "flex", gap: "12px" }}>
               <button
                 onClick={fetchData}
@@ -359,7 +358,6 @@ export default function Dashboard() {
             </table>
           </div>
         </section>
-      </div>
-    </div>
+    </>
   );
 }

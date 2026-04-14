@@ -41,18 +41,13 @@ export default function Login() {
     <div className="center-shell">
       <div className="auth-card">
         <div className="brand-row">
-          <div className="brand-grid" aria-hidden="true">
-            <span />
-            <span />
-            <span />
-            <span />
-          </div>
-          <div className="brand-name">PhishScale</div>
+          <div className="brand-dot"></div>
+          <div className="brand-name" style={{ color: "#0f172a", fontSize: "1.2rem" }}>PhishScale Pro</div>
         </div>
 
-        <h1 className="page-title">Security Training Console</h1>
+        <h1 className="page-title">Enterprise Console</h1>
         <p className="page-subtitle">
-          Built from your two references: a working simulation backend plus a polished phishing-awareness flow.
+          Professional Phishing Simulation & Employee Awareness Platform.
         </p>
 
         <div className="stack">

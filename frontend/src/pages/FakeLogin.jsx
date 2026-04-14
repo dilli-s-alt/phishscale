@@ -31,7 +31,6 @@ export default function FakeLogin() {
 
         {step === "email" ? (
           <>
-            <span className="eyebrow">Phase 3</span>
             <h2 className="page-title">Sign in</h2>
             <input
               className="ms-input"
@@ -58,7 +57,6 @@ export default function FakeLogin() {
               <span>{email}</span>
             </div>
             <h2 className="page-title">Enter password</h2>
-            <p className="page-subtitle">For simulation purposes, the password is never stored. Submission only records that data was entered.</p>
             <input
               className="ms-input"
               type="password"

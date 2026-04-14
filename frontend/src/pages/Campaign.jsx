@@ -174,10 +174,8 @@ export default function Campaign() {
   };
 
   return (
-    <div className="page-shell">
-      <div className="dashboard-shell">
+    <>
         <section className="panel-card">
-          <span className="eyebrow">Phase 1 + 2</span>
           <h1 className="page-title">Campaign Composer</h1>
           <p className="panel-copy">
             Choose a phishing pretext, customize the email body, and prepare a safe simulation campaign with tracked
@@ -255,7 +253,6 @@ export default function Campaign() {
         </section>
 
         <section className="panel-card">
-          <span className="eyebrow">Phase 1</span>
           <h2 className="panel-heading">Target Management</h2>
           <p className="panel-copy">
             Add individual employees with department metadata so analytics can identify which teams are most phish-prone.
@@ -324,7 +321,6 @@ export default function Campaign() {
         </section>
 
         <section className="panel-card">
-          <span className="eyebrow">Phase 2</span>
           <h2 className="panel-heading">Send Test Campaign</h2>
           <p className="panel-copy">
             Use test mode during demos so the campaign goes only to you. Switch to live mode when you want to send to
@@ -377,7 +373,6 @@ export default function Campaign() {
 
           <p className={`status-text${isError ? " error" : ""}`}>{message}</p>
         </section>
-      </div>
-    </div>
+    </>
   );
 }
