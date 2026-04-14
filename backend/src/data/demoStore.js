@@ -103,8 +103,19 @@ const defaultState = {
   campaigns: [],
   targets: [],
   campaignTargets: [],
-  events: []
+  events: [],
+  users: []
 };
+
+export const addDemoUser = (user) => {
+  const state = readState();
+  state.users.push({ ...user, id: Date.now().toString() });
+  writeState(state);
+  return state.users[state.users.length - 1];
+};
+
+export const findDemoUserByEmail = (email) =>
+  readState().users.find((u) => u.email === email) || null;
 
 const ensureStoreFile = () => {
   const dir = path.dirname(storeFile);

@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { pool } from "../config/db.js";
+import { addDemoUser, findDemoUserByEmail } from "../data/demoStore.js";
 
 const demoEmail = process.env.DEMO_EMAIL || "test@test.com";
 const demoPassword = process.env.DEMO_PASSWORD || "123456";
@@ -27,16 +28,21 @@ export const register = async (req, res) => {
 
     const hash = await bcrypt.hash(password, 10);
 
-    const user = await pool.query(
-      "INSERT INTO users(email,password) VALUES($1,$2) RETURNING id,email",
-      [email, hash]
-    );
-
-    res.json(user.rows[0]);
+    try {
+      const user = await pool.query(
+        "INSERT INTO users(email,password) VALUES($1,$2) RETURNING id,email",
+        [email, hash]
+      );
+      return res.json(user.rows[0]);
+    } catch (dbError) {
+      console.warn("Register falling back to demo store:", dbError.message);
+      const user = addDemoUser({ email, password: hash });
+      return res.json({ id: user.id, email: user.email });
+    }
   } catch (error) {
     console.error("Register failed:", error.message);
     res.status(500).json({
-      error: "Registration failed. Check database configuration before creating users."
+      error: "Registration failed."
     });
   }
 };
@@ -55,7 +61,11 @@ export const login = async (req, res) => {
       const result = await pool.query("SELECT * FROM users WHERE email=$1", [email]);
       user = result.rows[0] || null;
     } catch (dbError) {
-      console.warn("Database login lookup failed, falling back to demo user:", dbError.message);
+      console.warn("Database login lookup failed:", dbError.message);
+    }
+
+    if (!user) {
+      user = findDemoUserByEmail(email);
     }
 
     if (!user && email === demoEmail) {
