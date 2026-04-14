@@ -182,6 +182,9 @@ export const deleteCampaign = async (req, res) => {
   try {
     const { id } = req.params;
     try {
+      // Postgres: remove associations first
+      await pool.query("DELETE FROM events WHERE tracking_id IN (SELECT tracking_id FROM campaign_targets WHERE campaign_id=$1)", [id]);
+      await pool.query("DELETE FROM campaign_targets WHERE campaign_id=$1", [id]);
       await pool.query("DELETE FROM campaigns WHERE id=$1", [id]);
       return res.json({ message: "Campaign deleted" });
     } catch (dbError) {
@@ -199,6 +202,10 @@ export const deleteTemplate = async (req, res) => {
   try {
     const { id } = req.params;
     try {
+      // Postgres: remove associations first
+      await pool.query("DELETE FROM events WHERE tracking_id IN (SELECT tracking_id FROM campaign_targets WHERE campaign_id IN (SELECT id FROM campaigns WHERE template_id=$1))", [id]);
+      await pool.query("DELETE FROM campaign_targets WHERE campaign_id IN (SELECT id FROM campaigns WHERE template_id=$1)", [id]);
+      await pool.query("DELETE FROM campaigns WHERE template_id=$1", [id]);
       await pool.query("DELETE FROM templates WHERE id=$1", [id]);
       return res.json({ message: "Template deleted" });
     } catch (dbError) {

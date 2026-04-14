@@ -112,6 +112,9 @@ export const deleteTarget = async (req, res) => {
   try {
     const { id } = req.params;
     try {
+      // Postgres: remove associations first to avoid foreign key errors
+      await pool.query("DELETE FROM events WHERE tracking_id IN (SELECT tracking_id FROM campaign_targets WHERE target_id=$1)", [id]);
+      await pool.query("DELETE FROM campaign_targets WHERE target_id=$1", [id]);
       await pool.query("DELETE FROM targets WHERE id=$1", [id]);
       return res.json({ message: "Target deleted" });
     } catch (dbError) {
