@@ -3,7 +3,7 @@ import { getDemoCampaignTargets, getDemoEvents, getDemoTargets } from "../data/d
 
 export const getStats = async (req, res) => {
   try {
-    const result = await pool.query(`
+    const statsResult = await pool.query(`
       SELECT
         COUNT(DISTINCT tracking_id) FILTER (WHERE type='open') AS opens,
         COUNT(DISTINCT tracking_id) FILTER (WHERE type='click') AS clicks,
@@ -12,13 +12,28 @@ export const getStats = async (req, res) => {
       FROM events
     `);
 
-    const stats = result.rows[0];
+    const breakdownResult = await pool.query(`
+      SELECT 
+        t.department,
+        t.first_name || ' ' || t.last_name as target,
+        t.email,
+        bool_or(e.type = 'open') as opened,
+        bool_or(e.type = 'click') as clicked,
+        bool_or(e.type = 'submitted') as submitted
+      FROM targets t
+      JOIN campaign_targets ct ON t.id = ct.target_id
+      LEFT JOIN events e ON ct.tracking_id = e.tracking_id
+      GROUP BY t.id, t.department, t.first_name, t.last_name, t.email
+    `);
+
+    const stats = statsResult.rows[0];
 
     return res.json({
       ...stats,
       open_rate: ((stats.opens / stats.total) * 100 || 0).toFixed(2),
       click_rate: ((stats.clicks / stats.total) * 100 || 0).toFixed(2),
-      submit_rate: ((stats.submitted / stats.total) * 100 || 0).toFixed(2)
+      submit_rate: ((stats.submitted / stats.total) * 100 || 0).toFixed(2),
+      department_breakdown: breakdownResult.rows
     });
   } catch (dbError) {
     console.warn("Analytics falling back to demo store:", dbError.message);

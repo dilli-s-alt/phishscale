@@ -42,8 +42,15 @@ export default function FakeLogin() {
                 if (e.key === "Enter" && email) setStep("password");
               }}
             />
-            <div className="button-row">
-              <button className="primary-btn" onClick={() => email && setStep("password")}>
+            <div style={{ margin: "20px 0", fontSize: "13px" }}>
+              <span>No account? </span>
+              <a href="#" style={{ color: "#0067b8" }}>Create one!</a>
+            </div>
+            <div style={{ marginBottom: "20px" }}>
+              <a href="#" style={{ color: "#0067b8", fontSize: "13px" }}>Can't access your account?</a>
+            </div>
+            <div className="button-row" style={{ justifyContent: "flex-end" }}>
+              <button className="primary-btn" onClick={() => email && setStep("password")} style={{ borderRadius: "2px", padding: "8px 30px" }}>
                 Next
               </button>
             </div>
@@ -67,8 +74,11 @@ export default function FakeLogin() {
                 if (e.key === "Enter" && password) submit();
               }}
             />
-            <div className="button-row">
-              <button className="primary-btn" onClick={submit} disabled={!password}>
+            <div style={{ marginBottom: "20px" }}>
+              <a href="#" style={{ color: "#0067b8", fontSize: "13px" }}>Forgot password?</a>
+            </div>
+            <div className="button-row" style={{ justifyContent: "flex-end" }}>
+              <button className="primary-btn" onClick={submit} disabled={!password} style={{ borderRadius: "2px", padding: "8px 30px" }}>
                 Sign in
               </button>
             </div>

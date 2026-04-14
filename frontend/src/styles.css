@@ -331,7 +331,10 @@ button {
 
 .ms-card {
   width: min(100%, 440px);
-  padding: 42px;
+  padding: 44px;
+  background: white;
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+  border-radius: 0; /* Microsoft is sharp */
 }
 
 .ms-email-row {
