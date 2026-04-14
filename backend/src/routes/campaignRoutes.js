@@ -3,7 +3,8 @@ import {
   createCampaign,
   getCampaigns,
   getTemplates,
-  sendCampaign
+  sendCampaign,
+  deleteCampaign
 } from "../controllers/campaignController.js";
 
 const router = express.Router();
@@ -12,5 +13,6 @@ router.get("/", getCampaigns);
 router.get("/templates", getTemplates);
 router.post("/create", createCampaign);
 router.post("/send", sendCampaign);
+router.delete("/:id", deleteCampaign);
 
 export default router;

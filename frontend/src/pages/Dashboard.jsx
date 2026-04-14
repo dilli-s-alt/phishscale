@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import Papa from "papaparse";
 import { API, getApiErrorMessage } from "../api";
 
 export default function Dashboard() {
@@ -16,8 +17,9 @@ export default function Dashboard() {
   const [status, setStatus] = useState("Loading analytics...");
   const [campaigns, setCampaigns] = useState([]);
   const [targets, setTargets] = useState([]);
+  const [importing, setImporting] = useState(false);
 
-  useEffect(() => {
+  const fetchData = () => {
     API.get("/api/analytics")
       .then((res) => {
         setStats(res.data);
@@ -34,7 +36,55 @@ export default function Dashboard() {
     API.get("/api/targets")
       .then((res) => setTargets(Array.isArray(res.data) ? res.data : []))
       .catch(() => setTargets([]));
+  };
+
+  useEffect(() => {
+    fetchData();
   }, []);
+
+  const handleCsvImport = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setImporting(true);
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (results) => {
+        const payload = results.data.map((row) => ({
+          first_name: row.first_name || row.Firstname || row.Name?.split(" ")[0],
+          last_name: row.last_name || row.Lastname || row.Name?.split(" ")[1] || "Target",
+          email: row.email || row.Email,
+          department: row.department || row.Department || "General"
+        })).filter(t => t.email);
+
+        API.post("/api/targets/bulk", { targets: payload })
+          .then(() => {
+            alert(`Successfully imported ${payload.length} targets.`);
+            fetchData();
+          })
+          .catch((err) => alert(getApiErrorMessage(err, "CSV Import failed.")))
+          .finally(() => {
+            setImporting(false);
+            e.target.value = null;
+          });
+      }
+    });
+  };
+
+  const deleteTarget = (id) => {
+    if (!window.confirm("Delete this target?")) return;
+    API.delete(`/api/targets/${id}`)
+      .then(() => fetchData())
+      .catch((err) => alert(getApiErrorMessage(err, "Delete failed")));
+  };
+
+  const deleteCampaign = (id) => {
+    if (!window.confirm("Delete this campaign?")) return;
+    API.delete(`/api/campaign/${id}`)
+      .then(() => fetchData())
+      .catch((err) => alert(getApiErrorMessage(err, "Delete failed")));
+  };
 
   const departmentSummary = stats.department_breakdown?.reduce((acc, item) => {
     const key = item.department || "General";
@@ -63,105 +113,120 @@ export default function Dashboard() {
         <section className="hero-banner">
           <span className="eyebrow">Simulation Overview</span>
           <h1 className="page-title">PhishScale Dashboard</h1>
-          <p>
-            Monitor how targets moved from open to click to data submission, then break the results down by department
-            so admins can see which teams need more training.
-          </p>
+          <p>Global security simulation management as per Phase 1-4 objectives.</p>
         </section>
 
         <section className="stats-grid">
-          <article className="stat-card panel-card">
+          <div className="stat-card panel-card">
             <span className="eyebrow">Campaigns</span>
             <div className="stat-value">{campaigns.length}</div>
             <div className="stat-detail">Pretexts created</div>
-          </article>
-
-          <article className="stat-card panel-card">
+          </div>
+          <div className="stat-card panel-card">
             <span className="eyebrow">Targets</span>
             <div className="stat-value">{targets.length}</div>
             <div className="stat-detail">Employees in scope</div>
-          </article>
-
-          <article className="stat-card panel-card">
-            <span className="eyebrow">Opens</span>
-            <div className="stat-value">{stats.opens}</div>
-            <div className="stat-detail">{stats.open_rate}% open rate</div>
-          </article>
-
-          <article className="stat-card panel-card">
-            <span className="eyebrow">Clicks</span>
-            <div className="stat-value">{stats.clicks}</div>
-            <div className="stat-detail">{stats.click_rate}% click rate</div>
-          </article>
-
-          <article className="stat-card panel-card">
-            <span className="eyebrow">Submissions</span>
-            <div className="stat-value">{stats.submitted}</div>
-            <div className="stat-detail">{stats.submit_rate}% submission rate</div>
-          </article>
+          </div>
+          <div className="stat-card panel-card highlight">
+            <span className="eyebrow">Open Rate</span>
+            <div className="stat-value">{stats.open_rate}%</div>
+            <div className="stat-detail">{stats.opens} total opens</div>
+          </div>
+          <div className="stat-card panel-card critical">
+            <span className="eyebrow">Compromised</span>
+            <div className="stat-value">{stats.submit_rate}%</div>
+            <div className="stat-detail">{stats.submitted} leaked data</div>
+          </div>
         </section>
 
-        <section className="info-grid">
-          <article className="panel-card info-card">
-            <h2 className="panel-heading">PhishScale Flow</h2>
-            <p className="panel-copy">
-              Upload or create targets, choose a phishing pretext, run a safe test mode to yourself, then watch the
-              analytics update as users open, click, and submit.
-            </p>
-            <div className="button-row">
-              <Link className="primary-btn" to="/campaign">
-                Launch Campaigns
-              </Link>
-              <Link className="ghost-btn" to="/fake-login">
-                Preview Landing Page
-              </Link>
+        <div className="info-grid">
+          <section className="panel-card">
+            <h2 className="panel-heading">Target Management</h2>
+            <div className="button-row" style={{ marginBottom: "20px" }}>
+              <label className="primary-btn" style={{ cursor: "pointer" }}>
+                {importing ? "Importing..." : "CSV Import Targets"}
+                <input type="file" accept=".csv" onChange={handleCsvImport} style={{ display: "none" }} />
+              </label>
+              <Link to="/campaign" className="ghost-btn">New Campaign</Link>
             </div>
-          </article>
-
-          <article className="panel-card info-card">
-            <h2 className="panel-heading">Backend status</h2>
-            <p className="panel-copy">{status}</p>
-            <div className="button-row">
-              <a className="ghost-btn" href={`${API.defaults.baseURL}/health`} target="_blank" rel="noreferrer">
-                Health Check
-              </a>
+            <div className="table-wrap">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Dept</th>
+                    <th style={{ textAlign: "right" }}>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {targets.map((t) => (
+                    <tr key={t.id}>
+                      <td>{t.first_name} {t.last_name}</td>
+                      <td>{t.email}</td>
+                      <td>{t.department}</td>
+                      <td style={{ textAlign: "right" }}>
+                        <button onClick={() => deleteTarget(t.id)} className="delete-btn">Delete</button>
+                      </td>
+                    </tr>
+                  ))}
+                  {targets.length === 0 && (
+                    <tr><td colSpan="4">No targets. Use CSV Import to add employees.</td></tr>
+                  )}
+                </tbody>
+              </table>
             </div>
-          </article>
-        </section>
+          </section>
 
-        <section className="panel-card">
-          <span className="eyebrow">Department Report</span>
-          <h2 className="panel-heading">Who Needs More Training?</h2>
-          <p className="panel-copy">
-            This breakdown mirrors the case-study reporting goal by highlighting which departments are opening,
-            clicking, and submitting most often.
-          </p>
+          <section className="panel-card">
+            <h2 className="panel-heading">Phish-prone Departments</h2>
+            <div className="table-wrap">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Department</th>
+                    <th>Compromise Rate</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {departmentRows.map((row) => (
+                    <tr key={row.department}>
+                      <td>{row.department}</td>
+                      <td>{((row.submitted / row.total) * 100 || 0).toFixed(1)}%</td>
+                    </tr>
+                  ))}
+                  {departmentRows.length === 0 && (
+                    <tr><td colSpan="2">No data yet.</td></tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <section className="panel-card" style={{ marginTop: "24px" }}>
+          <h2 className="panel-heading">Active Campaigns</h2>
           <div className="table-wrap">
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Department</th>
-                  <th>Targets</th>
-                  <th>Opened</th>
-                  <th>Clicked</th>
-                  <th>Submitted</th>
+                  <th>Campaign Name</th>
+                  <th>Landing Page</th>
+                  <th style={{ textAlign: "right" }}>Action</th>
                 </tr>
               </thead>
               <tbody>
-                {departmentRows.length ? (
-                  departmentRows.map((row) => (
-                    <tr key={row.department}>
-                      <td>{row.department}</td>
-                      <td>{row.total}</td>
-                      <td>{row.opened}</td>
-                      <td>{row.clicked}</td>
-                      <td>{row.submitted}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="5">No department analytics yet. Send a campaign in test or live mode to populate results.</td>
+                {campaigns.map((c) => (
+                  <tr key={c.id}>
+                    <td>{c.name}</td>
+                    <td><code>{c.landing_page}</code></td>
+                    <td style={{ textAlign: "right" }}>
+                      <button onClick={() => deleteCampaign(c.id)} className="delete-btn">Delete</button>
+                    </td>
                   </tr>
+                ))}
+                {campaigns.length === 0 && (
+                  <tr><td colSpan="3">No campaigns created.</td></tr>
                 )}
               </tbody>
             </table>

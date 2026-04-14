@@ -247,3 +247,37 @@ export const findDemoCampaignById = (campaignId) =>
 
 export const findDemoTemplateById = (templateId) =>
   readState().templates.find((item) => Number(item.id) === Number(templateId)) || null;
+
+export const deleteDemoTarget = (targetId) => {
+  const state = readState();
+  state.targets = state.targets.filter((item) => Number(item.id) !== Number(targetId));
+  writeState(state);
+  return true;
+};
+
+export const deleteDemoCampaign = (campaignId) => {
+  const state = readState();
+  state.campaigns = state.campaigns.filter((item) => Number(item.id) !== Number(campaignId));
+  writeState(state);
+  return true;
+};
+
+export const bulkAddDemoTargets = (targetsList) => {
+  const state = readState();
+  let nextId = state.targets.length
+    ? Math.max(...state.targets.map((item) => Number(item.id))) + 1
+    : 1;
+
+  const newTargets = targetsList.map((item) => ({
+    id: nextId++,
+    first_name: item.first_name || "New",
+    last_name: item.last_name || "Target",
+    email: item.email,
+    department: item.department || "General",
+    organization_id: state.organization.id
+  }));
+
+  state.targets.push(...newTargets);
+  writeState(state);
+  return newTargets;
+};

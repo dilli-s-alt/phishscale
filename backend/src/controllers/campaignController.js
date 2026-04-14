@@ -176,3 +176,20 @@ export const sendCampaign = async (req, res) => {
     res.status(500).json({ error: "Failed to send campaign" });
   }
 };
+export const deleteCampaign = async (req, res) => {
+  try {
+    const { id } = req.params;
+    try {
+      await pool.query("DELETE FROM campaigns WHERE id=$1", [id]);
+      return res.json({ message: "Campaign deleted" });
+    } catch (dbError) {
+      console.warn("Delete campaign falling back to demo store:", dbError.message);
+      import { deleteDemoCampaign } from "../data/demoStore.js";
+      deleteDemoCampaign(id);
+      return res.json({ message: "Campaign deleted in demo mode" });
+    }
+  } catch (error) {
+    console.error("Delete campaign failed:", error);
+    res.status(500).json({ error: "Failed to delete campaign" });
+  }
+};

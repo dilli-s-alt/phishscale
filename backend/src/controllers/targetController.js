@@ -76,3 +76,48 @@ export const getTargets = async (req, res) => {
     return res.json(getDemoTargets());
   }
 };
+
+export const bulkCreateTargets = async (req, res) => {
+  try {
+    const { targets } = req.body;
+    if (!Array.isArray(targets)) {
+      return res.status(400).json({ error: "Targets must be an array" });
+    }
+
+    try {
+      for (const row of targets) {
+        await pool.query(
+          "INSERT INTO targets(first_name,last_name,email,department) VALUES($1,$2,$3,$4)",
+          [row.first_name, row.last_name, row.email, row.department || "General"]
+        );
+      }
+      return res.json({ message: "Targets imported", count: targets.length });
+    } catch (dbError) {
+      console.warn("Bulk create falling back to demo store:", dbError.message);
+      import { bulkAddDemoTargets } from "../data/demoStore.js";
+      bulkAddDemoTargets(targets);
+      return res.json({ message: "Targets imported in demo mode", count: targets.length });
+    }
+  } catch (error) {
+    console.error("Bulk create failed:", error);
+    res.status(500).json({ error: "Failed to import targets" });
+  }
+};
+
+export const deleteTarget = async (req, res) => {
+  try {
+    const { id } = req.params;
+    try {
+      await pool.query("DELETE FROM targets WHERE id=$1", [id]);
+      return res.json({ message: "Target deleted" });
+    } catch (dbError) {
+      console.warn("Delete target falling back to demo store:", dbError.message);
+      import { deleteDemoTarget } from "../data/demoStore.js";
+      deleteDemoTarget(id);
+      return res.json({ message: "Target deleted in demo mode" });
+    }
+  } catch (error) {
+    console.error("Delete target failed:", error);
+    res.status(500).json({ error: "Failed to delete target" });
+  }
+};

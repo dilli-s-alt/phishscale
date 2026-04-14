@@ -425,6 +425,31 @@ button {
   overflow-y: auto;
 }
 
+.delete-btn {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.delete-btn:hover {
+  background: #fecaca;
+  border-color: #f87171;
+}
+
+.panel-card.highlight {
+  border-left: 4px solid #10b981;
+}
+
+.panel-card.critical {
+  border-left: 4px solid #ef4444;
+}
+
 @media (max-width: 640px) {
   .page-shell,
   .center-shell,
