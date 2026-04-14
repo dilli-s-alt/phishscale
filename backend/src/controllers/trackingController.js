@@ -1,7 +1,14 @@
 import { pool } from "../config/db.js";
 import { addDemoEvent } from "../data/demoStore.js";
 
-const frontendBaseUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+const getFrontendUrl = () => {
+  if (process.env.FRONTEND_URL && !process.env.FRONTEND_URL.includes("localhost")) {
+    return process.env.FRONTEND_URL;
+  }
+  return "https://frontend-psi-gold-34.vercel.app";
+};
+
+const frontendBaseUrl = getFrontendUrl();
 
 export const trackOpen = async (req, res) => {
   const { id } = req.params;

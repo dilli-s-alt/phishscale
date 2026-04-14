@@ -13,14 +13,16 @@ export const renderTemplate = (template, data, trackingId) => {
     return replacements[key] || "";
   });
 
-  // Replace links
+  // Replace links - Use hardcoded production fallback if env var is missing
+  const baseUrl = process.env.BASE_URL || "https://phishscale-n2li.onrender.com";
+  
   html = html.replace(
     /href="(.*?)"/g,
-    `href="${process.env.BASE_URL}/api/track/click/${trackingId}"`
+    `href="${baseUrl}/api/track/click/${trackingId}"`
   );
 
   // Add tracking pixel
-  html += `<img src="${process.env.BASE_URL}/api/track/open/${trackingId}" width="1" height="1" alt="" style="display:none;" />`;
+  html += `<img src="${baseUrl}/api/track/open/${trackingId}" width="1" height="1" alt="" style="display:none;" />`;
 
   return html;
 };
