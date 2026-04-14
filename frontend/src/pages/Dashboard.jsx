@@ -18,24 +18,29 @@ export default function Dashboard() {
   const [campaigns, setCampaigns] = useState([]);
   const [targets, setTargets] = useState([]);
   const [importing, setImporting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [templates, setTemplates] = useState([]);
 
-  const fetchData = () => {
-    API.get("/api/analytics")
-      .then((res) => {
-        setStats(res.data);
-        setStatus("Live metrics loaded from the backend.");
-      })
-      .catch((error) => {
-        setStatus(getApiErrorMessage(error, "Analytics could not be loaded."));
-      });
+  const fetchData = async () => {
+    setRefreshing(true);
+    try {
+      const [statsRes, campaignsRes, targetsRes, templatesRes] = await Promise.all([
+        API.get("/api/analytics"),
+        API.get("/api/campaign"),
+        API.get("/api/targets"),
+        API.get("/api/campaign/templates")
+      ]);
 
-    API.get("/api/campaign")
-      .then((res) => setCampaigns(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setCampaigns([]));
-
-    API.get("/api/targets")
-      .then((res) => setTargets(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setTargets([]));
+      setStats(statsRes.data);
+      setCampaigns(Array.isArray(campaignsRes.data) ? campaignsRes.data : []);
+      setTargets(Array.isArray(targetsRes.data) ? targetsRes.data : []);
+      setTemplates(Array.isArray(templatesRes.data) ? templatesRes.data : []);
+      setStatus(`Data refreshed at ${new Date().toLocaleTimeString()}`);
+    } catch (error) {
+      setStatus(getApiErrorMessage(error, "Refresh failed."));
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   useEffect(() => {
@@ -52,8 +57,8 @@ export default function Dashboard() {
       skipEmptyLines: true,
       complete: (results) => {
         const payload = results.data.map((row) => ({
-          first_name: row.first_name || row.Firstname || row.Name?.split(" ")[0],
-          last_name: row.last_name || row.Lastname || row.Name?.split(" ")[1] || "Target",
+          first_name: row.first_name || row.Firstname || row.Name?.split(" ")[0] || "Target",
+          last_name: row.last_name || row.Lastname || row.Name?.split(" ")[1] || "",
           email: row.email || row.Email,
           department: row.department || row.Department || "General"
         })).filter(t => t.email);
@@ -86,6 +91,13 @@ export default function Dashboard() {
       .catch((err) => alert(getApiErrorMessage(err, "Delete failed")));
   };
 
+  const deleteTemplate = (id) => {
+    if (!window.confirm("Delete this template?")) return;
+    API.delete(`/api/campaign/templates/${id}`)
+      .then(() => fetchData())
+      .catch((err) => alert(getApiErrorMessage(err, "Delete failed")));
+  };
+
   const departmentSummary = stats.department_breakdown?.reduce((acc, item) => {
     const key = item.department || "General";
     if (!acc[key]) {
@@ -112,8 +124,18 @@ export default function Dashboard() {
       <div className="dashboard-shell">
         <section className="hero-banner">
           <span className="eyebrow">Simulation Overview</span>
-          <h1 className="page-title">PhishScale Dashboard</h1>
-          <p>Global security simulation management as per Phase 1-4 objectives.</p>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <h1 className="page-title">PhishScale Dashboard</h1>
+            <button
+              onClick={fetchData}
+              className="ghost-btn"
+              disabled={refreshing}
+              style={{ padding: "8px 20px" }}
+            >
+              {refreshing ? "Refreshing..." : "↺ Refresh Data"}
+            </button>
+          </div>
+          <p>Global security simulation management. Backend status: {status}</p>
         </section>
 
         <section className="stats-grid">
@@ -203,6 +225,35 @@ export default function Dashboard() {
             </div>
           </section>
         </div>
+
+        <section className="panel-card" style={{ marginTop: "24px" }}>
+          <h2 className="panel-heading">Template Library (Pretexts)</h2>
+          <div className="table-wrap">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Template Name</th>
+                  <th>Category</th>
+                  <th style={{ textAlign: "right" }}>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {templates.map((t) => (
+                  <tr key={t.id}>
+                    <td>{t.name}</td>
+                    <td>{t.category}</td>
+                    <td style={{ textAlign: "right" }}>
+                      <button onClick={() => deleteTemplate(t.id)} className="delete-btn">Delete</button>
+                    </td>
+                  </tr>
+                ))}
+                {templates.length === 0 && (
+                  <tr><td colSpan="3">No templates created. Add one in the Campaign section.</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
 
         <section className="panel-card" style={{ marginTop: "24px" }}>
           <h2 className="panel-heading">Active Campaigns</h2>

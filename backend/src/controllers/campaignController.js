@@ -8,7 +8,8 @@ import {
   getDemoOrganization,
   getDemoTargets,
   getDemoTemplates,
-  deleteDemoCampaign
+  deleteDemoCampaign,
+  deleteDemoTemplate
 } from "../data/demoStore.js";
 import { generateId } from "../utils/generateId.js";
 import { renderTemplate } from "../services/templateService.js";
@@ -191,5 +192,22 @@ export const deleteCampaign = async (req, res) => {
   } catch (error) {
     console.error("Delete campaign failed:", error);
     res.status(500).json({ error: "Failed to delete campaign" });
+  }
+};
+
+export const deleteTemplate = async (req, res) => {
+  try {
+    const { id } = req.params;
+    try {
+      await pool.query("DELETE FROM templates WHERE id=$1", [id]);
+      return res.json({ message: "Template deleted" });
+    } catch (dbError) {
+      console.warn("Delete template falling back to demo store:", dbError.message);
+      deleteDemoTemplate(id);
+      return res.json({ message: "Template deleted in demo mode" });
+    }
+  } catch (error) {
+    console.error("Delete template failed:", error);
+    res.status(500).json({ error: "Failed to delete template" });
   }
 };
