@@ -154,6 +154,17 @@ export default function Dashboard() {
       .catch((err) => alert(getApiErrorMessage(err, "Delete failed")));
   };
 
+  const handleSystemReset = () => {
+    if (!window.confirm("⚠️ DANGER: Factory Reset?\n\nThis will PERMANENTLY delete all targets, campaigns, and experimental data. Professional templates will be restored to default.\n\nContinue?")) return;
+    
+    API.post("/api/system/reset")
+      .then(() => {
+        alert("System Reset Complete. Your simulation environment is fresh.");
+        fetchData();
+      })
+      .catch((err) => alert(getApiErrorMessage(err, "Reset failed")));
+  };
+
   const departmentSummary = stats.department_breakdown?.reduce((acc, item) => {
     const key = item.department || "General";
     if (!acc[key]) {
@@ -182,14 +193,23 @@ export default function Dashboard() {
           <span className="eyebrow">Simulation Overview</span>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <h1 className="page-title">PhishScale Dashboard</h1>
-            <button
-              onClick={fetchData}
-              className="ghost-btn"
-              disabled={refreshing}
-              style={{ padding: "8px 20px" }}
-            >
-              {refreshing ? "Refreshing..." : "↺ Refresh Data"}
-            </button>
+            <div style={{ display: "flex", gap: "12px" }}>
+              <button
+                onClick={fetchData}
+                className="ghost-btn"
+                disabled={refreshing}
+                style={{ padding: "8px 20px" }}
+              >
+                {refreshing ? "Refreshing..." : "↺ Refresh Data"}
+              </button>
+              <button
+                onClick={handleSystemReset}
+                className="ghost-btn"
+                style={{ padding: "8px 20px", color: "#ff4757", borderColor: "#ff4757" }}
+              >
+                ⚠ Factory Reset
+              </button>
+            </div>
           </div>
           <p>Global security simulation management. Backend status: {status}</p>
         </section>

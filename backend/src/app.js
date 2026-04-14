@@ -7,6 +7,7 @@ import authRoutes from "./routes/authRoutes.js";
 import campaignRoutes from "./routes/campaignRoutes.js";
 import targetRoutes from "./routes/targetRoutes.js";
 import trackingRoutes from "./routes/trackingRoutes.js";
+import systemRoutes from "./routes/systemRoutes.js";
 
 const app = express();
 
@@ -43,6 +44,7 @@ app.use("/api/campaign", campaignRoutes);
 app.use("/api/targets", targetRoutes);
 app.use("/api/track", trackingRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/system", systemRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err);

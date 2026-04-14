@@ -277,3 +277,8 @@ export const findDemoCampaignById = (campaignId) =>
 
 export const findDemoTemplateById = (templateId) =>
   readState().templates.find((item) => Number(item.id) === Number(templateId)) || null;
+
+export const resetDemoStore = () => {
+  writeState(defaultState);
+  return true;
+};
