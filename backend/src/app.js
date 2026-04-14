@@ -19,22 +19,7 @@ const allowedOrigins = [
   "http://127.0.0.1:5174"
 ].filter(Boolean);
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      // Allow requests with no origin or allowed origins
-      const isVercel = origin && (origin.endsWith(".vercel.app") || origin.includes("vercel.app"));
-      
-      if (!origin || allowedOrigins.includes(origin) || isVercel) {
-        callback(null, true);
-      } else {
-        console.warn(`[CORS] Blocked origin: ${origin}`);
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true
-  })
-);
+app.use(cors({ origin: true, credentials: true })); // Nuclear: Allow all origins for production testing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -51,11 +36,13 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-app.use("/api/analytics", analyticsRoutes);
+app.get("/", (req, res) => res.json({ status: "alive", service: "PhishScale Backend" }));
+
 app.use("/api/auth", authRoutes);
 app.use("/api/campaign", campaignRoutes);
 app.use("/api/targets", targetRoutes);
 app.use("/api/track", trackingRoutes);
+app.use("/api/analytics", analyticsRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err);
