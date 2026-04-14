@@ -53,42 +53,70 @@ export default function Dashboard() {
 
     setImporting(true);
     Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
+      skipEmptyLines: "greedy",
+      transformHeader: (h) => h.replace(/[^\x20-\x7E]/g, "").toLowerCase().trim(),
       complete: (results) => {
-        console.log("Parsed CSV Results:", results);
-        const findField = (row, names) => {
-          const key = Object.keys(row).find(k => 
-            names.some(n => k.toLowerCase().trim() === n.toLowerCase())
-          );
-          return key ? row[key] : null;
-        };
+        console.log("Universal Parser Results:", results);
+        
+        let rawData = results.data;
+        let payload = [];
 
-        const payload = results.data.map((row) => {
-          const email = findField(row, ["email", "e-mail", "mail", "email address"]);
-          const first = findField(row, ["first name", "firstname", "first_name", "fname", "given name", "name"]);
-          const last = findField(row, ["last name", "lastname", "last_name", "lname", "surname"]);
-          const dept = findField(row, ["department", "dept", "team", "group"]);
+        // Try mapping with headers (PapaParse does transformHeader above)
+        const possibleEmails = ["email", "e-mail", "mail", "email address"];
+        const possibleFirst = ["first name", "firstname", "first_name", "fname", "given name", "name"];
+        const possibleLast = ["last name", "lastname", "last_name", "lname", "surname"];
+        const possibleDept = ["department", "dept", "team", "group", "division"];
 
-          if (!email) return null;
+        // Strategy A: Row-based Header Detection
+        payload = rawData.map((row) => {
+          // Detect strategy: Is it an object (header:true) or array (header:false)?
+          const isObj = row !== null && typeof row === "object" && !Array.isArray(row);
+          
+          let email, first, last, dept;
+
+          if (isObj) {
+            const keys = Object.keys(row);
+            const getV = (names) => {
+              const k = keys.find(key => names.includes(key));
+              return k ? row[k] : null;
+            };
+            email = getV(possibleEmails);
+            first = getV(possibleFirst);
+            last = getV(possibleLast);
+            dept = getV(possibleDept);
+          } else if (Array.isArray(row)) {
+            // No headers? Assume [First, Last, Email, Dept] or [Name, Email, Dept]
+            if (row.length >= 3) {
+              // Very simple heuristic: find index with @
+              const emailIdx = row.findIndex(v => v?.toString().includes("@"));
+              if (emailIdx !== -1) {
+                email = row[emailIdx];
+                first = row[0] === email ? "New" : row[0];
+                last = row[1] === email ? "Target" : row[1];
+                dept = row[3] || "General";
+              }
+            }
+          }
+
+          if (!email || !email.includes("@")) return null;
 
           return {
             first_name: first || "New",
             last_name: last || "Target",
-            email: email,
+            email: email.trim(),
             department: dept || "General"
           };
         }).filter(t => t !== null);
 
         if (payload.length === 0) {
-          alert("No valid targets found in CSV. Please ensure you have an 'Email' column.");
+          alert("Could not find any valid email addresses in the file. Please check that your CSV has an 'Email' column or that the data is correctly formatted.");
           setImporting(false);
           return;
         }
 
         API.post("/api/targets/bulk", { targets: payload })
           .then(() => {
-            alert(`Successfully imported ${payload.length} targets.`);
+            alert(`🎉 Successfully imported ${payload.length} targets!`);
             fetchData();
           })
           .catch((err) => alert(getApiErrorMessage(err, "CSV Import failed.")))
