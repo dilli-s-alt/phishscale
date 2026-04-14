@@ -51,81 +51,91 @@ export default function Dashboard() {
     const file = e.target.files[0];
     if (!file) return;
 
-    setImporting(true);
-    Papa.parse(file, {
+    // Universal Discovery Strategy
+    const parseConfig = {
+      header: true,
       skipEmptyLines: "greedy",
       transformHeader: (h) => h.replace(/[^\x20-\x7E]/g, "").toLowerCase().trim(),
       complete: (results) => {
-        console.log("Universal Parser Results:", results);
+        let items = mapResults(results);
         
-        let rawData = results.data;
-        let payload = [];
-
-        // Try mapping with headers (PapaParse does transformHeader above)
-        const possibleEmails = ["email", "e-mail", "mail", "email address"];
-        const possibleFirst = ["first name", "firstname", "first_name", "fname", "given name", "name"];
-        const possibleLast = ["last name", "lastname", "last_name", "lname", "surname"];
-        const possibleDept = ["department", "dept", "team", "group", "division"];
-
-        // Strategy A: Row-based Header Detection
-        payload = rawData.map((row) => {
-          // Detect strategy: Is it an object (header:true) or array (header:false)?
-          const isObj = row !== null && typeof row === "object" && !Array.isArray(row);
-          
-          let email, first, last, dept;
-
-          if (isObj) {
-            const keys = Object.keys(row);
-            const getV = (names) => {
-              const k = keys.find(key => names.includes(key));
-              return k ? row[k] : null;
-            };
-            email = getV(possibleEmails);
-            first = getV(possibleFirst);
-            last = getV(possibleLast);
-            dept = getV(possibleDept);
-          } else if (Array.isArray(row)) {
-            // No headers? Assume [First, Last, Email, Dept] or [Name, Email, Dept]
-            if (row.length >= 3) {
-              // Very simple heuristic: find index with @
-              const emailIdx = row.findIndex(v => v?.toString().includes("@"));
-              if (emailIdx !== -1) {
-                email = row[emailIdx];
-                first = row[0] === email ? "New" : row[0];
-                last = row[1] === email ? "Target" : row[1];
-                dept = row[3] || "General";
-              }
+        // If Strategy A (headers) failed to find emails, try Strategy B (no headers)
+        if (items.length === 0) {
+          Papa.parse(file, {
+            header: false,
+            skipEmptyLines: "greedy",
+            complete: (res2) => {
+              items = mapResults(res2);
+              submitPayload(items);
             }
-          }
+          });
+        } else {
+          submitPayload(items);
+        }
+      }
+    };
 
-          if (!email || !email.includes("@")) return null;
+    const mapResults = (results) => {
+      const pEmails = ["email", "e-mail", "mail", "email address"];
+      const pFirst = ["first name", "firstname", "first_name", "fname", "given name", "name"];
+      const pLast = ["last name", "lastname", "last_name", "lname", "surname"];
+      const pDept = ["department", "dept", "team", "group", "division"];
 
-          return {
-            first_name: first || "New",
-            last_name: last || "Target",
-            email: email.trim(),
-            department: dept || "General"
+      return results.data.map((row) => {
+        const isObj = row !== null && typeof row === "object" && !Array.isArray(row);
+        let email, first, last, dept;
+
+        if (isObj) {
+          const keys = Object.keys(row);
+          const getV = (names) => {
+            const k = keys.find(key => names.includes(key));
+            return k ? row[k] : null;
           };
-        }).filter(t => t !== null);
-
-        if (payload.length === 0) {
-          alert("Could not find any valid email addresses in the file. Please check that your CSV has an 'Email' column or that the data is correctly formatted.");
-          setImporting(false);
-          return;
+          email = getV(pEmails);
+          first = getV(pFirst);
+          last = getV(pLast);
+          dept = getV(pDept);
+        } else if (Array.isArray(row)) {
+          const emailIdx = row.findIndex(v => v?.toString().includes("@"));
+          if (emailIdx !== -1) {
+            email = row[emailIdx];
+            first = row[0] === email ? "New" : row[0];
+            last = row[1] === email ? "Target" : row[1];
+            dept = row[3] || "General";
+          }
         }
 
-        API.post("/api/targets/bulk", { targets: payload })
-          .then(() => {
-            alert(`🎉 Successfully imported ${payload.length} targets!`);
-            fetchData();
-          })
-          .catch((err) => alert(getApiErrorMessage(err, "CSV Import failed.")))
-          .finally(() => {
-            setImporting(false);
-            e.target.value = null;
-          });
+        if (!email || !email.toString().includes("@")) return null;
+
+        return {
+          first_name: first || "New",
+          last_name: last || "Target",
+          email: email.toString().trim(),
+          department: dept || "General"
+        };
+      }).filter(t => t !== null);
+    };
+
+    const submitPayload = (payload) => {
+      if (payload.length === 0) {
+        alert("Could not find any valid email addresses in the file. Please ensure your CSV has an 'Email' column.");
+        setImporting(false);
+        return;
       }
-    });
+
+      API.post("/api/targets/bulk", { targets: payload })
+        .then(() => {
+          alert(`🎉 Successfully imported ${payload.length} targets!`);
+          fetchData();
+        })
+        .catch((err) => alert(getApiErrorMessage(err, "CSV Import failed.")))
+        .finally(() => {
+          setImporting(false);
+          e.target.value = null;
+        });
+    };
+
+    Papa.parse(file, parseConfig);
   };
 
   const deleteTarget = (id) => {
