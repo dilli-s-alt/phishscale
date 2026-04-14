@@ -51,91 +51,86 @@ export default function Dashboard() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Universal Discovery Strategy
-    const parseConfig = {
-      header: true,
-      skipEmptyLines: "greedy",
-      transformHeader: (h) => h.replace(/[^\x20-\x7E]/g, "").toLowerCase().trim(),
-      complete: (results) => {
-        let items = mapResults(results);
-        
-        // If Strategy A (headers) failed to find emails, try Strategy B (no headers)
-        if (items.length === 0) {
-          Papa.parse(file, {
-            header: false,
-            skipEmptyLines: "greedy",
-            complete: (res2) => {
-              items = mapResults(res2);
-              submitPayload(items);
-            }
-          });
-        } else {
-          submitPayload(items);
-        }
-      }
-    };
+    setImporting(true);
 
-    const mapResults = (results) => {
+    // Helper: map a parsed result set to target objects
+    const mapRows = (data) => {
       const pEmails = ["email", "e-mail", "mail", "email address"];
-      const pFirst = ["first name", "firstname", "first_name", "fname", "given name", "name"];
-      const pLast = ["last name", "lastname", "last_name", "lname", "surname"];
-      const pDept = ["department", "dept", "team", "group", "division"];
+      const pFirst  = ["name", "first name", "firstname", "first_name", "fname", "given name"];
+      const pLast   = ["last name", "lastname", "last_name", "lname", "surname"];
+      const pDept   = ["department", "dept", "team", "group", "division"];
 
-      return results.data.map((row) => {
+      return data.map((row) => {
         const isObj = row !== null && typeof row === "object" && !Array.isArray(row);
         let email, first, last, dept;
 
         if (isObj) {
-          const keys = Object.keys(row);
+          // Header mode: keys have already been lowercased + trimmed by transformHeader
           const getV = (names) => {
-            const k = keys.find(key => names.includes(key));
+            const k = Object.keys(row).find(key => names.includes(key));
             return k ? row[k] : null;
           };
           email = getV(pEmails);
           first = getV(pFirst);
-          last = getV(pLast);
-          dept = getV(pDept);
+          last  = getV(pLast);
+          dept  = getV(pDept);
         } else if (Array.isArray(row)) {
+          // No-header mode: scan for the cell that contains @
           const emailIdx = row.findIndex(v => v?.toString().includes("@"));
           if (emailIdx !== -1) {
             email = row[emailIdx];
-            first = row[0] === email ? "New" : row[0];
-            last = row[1] === email ? "Target" : row[1];
-            dept = row[3] || "General";
+            first = emailIdx !== 0 ? row[0] : "New";
+            last  = emailIdx !== 1 ? row[1] : "Target";
+            dept  = row[emailIdx + 1] || row[4] || "General";
           }
         }
 
         if (!email || !email.toString().includes("@")) return null;
 
         return {
-          first_name: first || "New",
-          last_name: last || "Target",
-          email: email.toString().trim(),
-          department: dept || "General"
+          first_name:  (first || "New").toString().trim(),
+          last_name:   (last  || "Target").toString().trim(),
+          email:       email.toString().trim(),
+          department:  (dept  || "General").toString().trim()
         };
-      }).filter(t => t !== null);
+      }).filter(Boolean);
     };
 
-    const submitPayload = (payload) => {
+    // Send payload to backend
+    const submit = (payload) => {
       if (payload.length === 0) {
-        alert("Could not find any valid email addresses in the file. Please ensure your CSV has an 'Email' column.");
+        alert("No valid emails found in CSV.\n\nYour CSV must have an 'Email' column (or 'Name', 'Email', 'Department' columns).");
         setImporting(false);
         return;
       }
-
       API.post("/api/targets/bulk", { targets: payload })
         .then(() => {
           alert(`🎉 Successfully imported ${payload.length} targets!`);
           fetchData();
         })
         .catch((err) => alert(getApiErrorMessage(err, "CSV Import failed.")))
-        .finally(() => {
-          setImporting(false);
-          e.target.value = null;
-        });
+        .finally(() => { setImporting(false); e.target.value = null; });
     };
 
-    Papa.parse(file, parseConfig);
+    // Parse with headers first
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: "greedy",
+      transformHeader: (h) => h.replace(/[^\x20-\x7E]/g, "").toLowerCase().trim(),
+      complete: (r1) => {
+        const payload = mapRows(r1.data);
+        if (payload.length > 0) {
+          submit(payload);
+        } else {
+          // Fallback: parse without headers (positional columns)
+          Papa.parse(file, {
+            header: false,
+            skipEmptyLines: "greedy",
+            complete: (r2) => submit(mapRows(r2.data))
+          });
+        }
+      }
+    });
   };
 
   const deleteTarget = (id) => {
