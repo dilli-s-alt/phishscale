@@ -1,5 +1,9 @@
-import { pool } from "../config/db.js";
-import { addDemoTarget, getDemoTargets } from "../data/demoStore.js";
+import {
+  addDemoTarget,
+  getDemoTargets,
+  bulkAddDemoTargets,
+  deleteDemoTarget
+} from "../data/demoStore.js";
 import { parseCSV } from "../utils/csvParser.js";
 
 export const uploadTargets = async (req, res) => {
@@ -94,7 +98,6 @@ export const bulkCreateTargets = async (req, res) => {
       return res.json({ message: "Targets imported", count: targets.length });
     } catch (dbError) {
       console.warn("Bulk create falling back to demo store:", dbError.message);
-      import { bulkAddDemoTargets } from "../data/demoStore.js";
       bulkAddDemoTargets(targets);
       return res.json({ message: "Targets imported in demo mode", count: targets.length });
     }
@@ -112,7 +115,6 @@ export const deleteTarget = async (req, res) => {
       return res.json({ message: "Target deleted" });
     } catch (dbError) {
       console.warn("Delete target falling back to demo store:", dbError.message);
-      import { deleteDemoTarget } from "../data/demoStore.js";
       deleteDemoTarget(id);
       return res.json({ message: "Target deleted in demo mode" });
     }

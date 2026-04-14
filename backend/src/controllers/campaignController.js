@@ -7,7 +7,8 @@ import {
   getDemoCampaigns,
   getDemoOrganization,
   getDemoTargets,
-  getDemoTemplates
+  getDemoTemplates,
+  deleteDemoCampaign
 } from "../data/demoStore.js";
 import { generateId } from "../utils/generateId.js";
 import { renderTemplate } from "../services/templateService.js";
@@ -184,7 +185,6 @@ export const deleteCampaign = async (req, res) => {
       return res.json({ message: "Campaign deleted" });
     } catch (dbError) {
       console.warn("Delete campaign falling back to demo store:", dbError.message);
-      import { deleteDemoCampaign } from "../data/demoStore.js";
       deleteDemoCampaign(id);
       return res.json({ message: "Campaign deleted in demo mode" });
     }
