@@ -12,7 +12,7 @@ export default function Layout({ children }) {
   // Hide sidebar on landing/login/trap pages for a cleaner feel
   const hideSidebar = ["/", "/fake-login", "/caught"].includes(location.pathname);
 
-  if (hideSidebar) return children;
+  if (hideSidebar) return <>{children}</>;
 
   return (
     <div className="app-layout">
