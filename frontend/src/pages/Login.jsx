@@ -1,10 +1,16 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { API } from "../api";
+import { API, getApiErrorMessage } from "../api";
 
 export default function Login() {
+  const navigate = useNavigate();
   const [mode, setMode] = useState("login"); // "login" or "register"
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [message, setMessage] = useState("");
+  const [isError, setIsError] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     try {
@@ -13,10 +19,7 @@ export default function Login() {
       setMessage("");
 
       const endpoint = mode === "login" ? "/api/auth/login" : "/api/auth/register";
-      const { data } = await API.post(endpoint, {
-        email,
-        password
-      });
+      const { data } = await API.post(endpoint, { email, password });
 
       if (mode === "register") {
         setMessage("Account created! You can now sign in.");
@@ -28,7 +31,6 @@ export default function Login() {
         localStorage.setItem("phishscale-token", data.token);
       }
 
-      setMessage("Redirecting...");
       navigate("/dashboard");
     } catch (error) {
       setIsError(true);
@@ -48,8 +50,8 @@ export default function Login() {
 
         <h1 className="page-title">{mode === "login" ? "Welcome Back" : "Create Account"}</h1>
         <p className="page-subtitle">
-          {mode === "login" 
-            ? "Enter your credentials to access the security console." 
+          {mode === "login"
+            ? "Enter your credentials to access the security console."
             : "Set up a new administrator account for PhishScale."}
         </p>
 
@@ -62,10 +64,11 @@ export default function Login() {
               placeholder="admin@enterprise.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }}
             />
           </div>
 
-          <div className="field" style={{ position: "relative" }}>
+          <div className="field">
             <label htmlFor="password">Password</label>
             <div style={{ position: "relative" }}>
               <input
@@ -74,6 +77,7 @@ export default function Login() {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }}
                 style={{ paddingRight: "45px" }}
               />
               <button
@@ -99,14 +103,19 @@ export default function Login() {
         </div>
 
         <div className="button-row" style={{ marginTop: "24px" }}>
-          <button className="primary-btn" onClick={handleSubmit} disabled={loading} style={{ flex: 1 }}>
-            {loading ? "Processing..." : (mode === "login" ? "Sign In" : "Register")}
+          <button
+            className="primary-btn"
+            onClick={handleSubmit}
+            disabled={loading}
+            style={{ flex: 1 }}
+          >
+            {loading ? "Processing..." : (mode === "login" ? "Sign In" : "Create Account")}
           </button>
         </div>
 
         <div style={{ textAlign: "center", marginTop: "20px" }}>
-          <button 
-            className="link-btn" 
+          <button
+            className="link-btn"
             onClick={() => { setMode(mode === "login" ? "register" : "login"); setMessage(""); }}
           >
             {mode === "login" ? "Need an account? Sign up" : "Already have an account? Sign in"}
