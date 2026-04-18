@@ -158,8 +158,8 @@ export default function Dashboard() {
     if (!window.confirm("⚠️ DANGER: Factory Reset?\n\nThis will PERMANENTLY delete all targets, campaigns, and experimental data. Professional templates will be restored to default.\n\nContinue?")) return;
     
     API.post("/api/system/reset")
-      .then(() => {
-        alert("System Reset Complete. Your simulation environment is fresh.");
+      .then((res) => {
+        alert(res.data.message || "System Reset Complete. Your simulation environment is fresh.");
         fetchData();
       })
       .catch((err) => alert(getApiErrorMessage(err, "Reset failed")));
