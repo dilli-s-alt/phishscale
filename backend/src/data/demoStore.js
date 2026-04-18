@@ -275,6 +275,11 @@ export const findDemoTemplateById = (templateId) =>
   readState().templates.find((item) => Number(item.id) === Number(templateId)) || null;
 
 export const resetDemoStore = () => {
-  writeState(defaultState);
+  const currentState = readState();
+  const newState = {
+    ...structuredClone(defaultState),
+    users: currentState.users || []
+  };
+  writeState(newState);
   return true;
 };

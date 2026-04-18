@@ -12,7 +12,7 @@ export const resetSystem = async (req, res) => {
     // 2. Clear & Seed Postgres if connected
     try {
       // Wipe everything
-      await pool.query("TRUNCATE TABLE events, campaign_targets, targets, campaigns, templates, users RESTART IDENTITY CASCADE");
+      await pool.query("TRUNCATE TABLE events, campaign_targets, targets, campaigns, templates RESTART IDENTITY CASCADE");
       
       const org = getDemoOrganization();
       const templates = getDemoTemplates();
@@ -25,7 +25,7 @@ export const resetSystem = async (req, res) => {
       const demoEmail = process.env.DEMO_EMAIL || "test@test.com";
       const demoPass = process.env.DEMO_PASSWORD || "123456";
       const hash = await bcrypt.hash(demoPass, 10);
-      await pool.query("INSERT INTO users (email, password) VALUES ($1, $2)", [demoEmail, hash]);
+      await pool.query("INSERT INTO users (email, password) VALUES ($1, $2) ON CONFLICT (email) DO NOTHING", [demoEmail, hash]);
 
       // Seed Templates
       for (const t of templates) {
