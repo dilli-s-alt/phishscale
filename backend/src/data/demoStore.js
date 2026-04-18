@@ -14,45 +14,24 @@ const defaultState = {
   templates: [
     {
       id: 1,
-      name: "Microsoft 365: Password Retention",
+      name: "Urgent: Password Expiry",
       category: "IT Security",
       subject: "Action Required: Your Microsoft 365 password expires in 24 hours",
       html: `<div style="background-color:#f4f4f4;padding:40px;font-family:'Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><div style="max-width:600px;margin:0 auto;background-color:#ffffff;border-radius:2px;overflow:hidden;box-shadow:0 2px 5px rgba(0,0,0,0.1);"><div style="padding:32px;"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Microsoft_logo.svg/512px-Microsoft_logo.svg.png" width="90" style="margin-bottom:24px;" alt="Microsoft"><h2 style="color:#2b2b2b;margin:0 0 16px 0;font-size:18px;font-weight:600;">Office 365: Password Expiry Notice</h2><p style="color:#505050;font-size:15px;line-height:1.6;margin:0 0 24px 0;">Hello {{first_name}},<br><br>Security policy requires all employees in the <strong>{{department}}</strong> department to update their Microsoft 365 credentials every 90 days. Your current password is set to expire in less than <strong>24 hours</strong>.</p><div style="text-align:left;margin-bottom:32px;"><a href="{{tracking_url}}" style="background-color:#0067b8;color:#ffffff;padding:10px 24px;text-decoration:none;border-radius:2px;font-weight:400;display:inline-block;font-size:15px;">Keep current password</a></div><p style="color:#808080;font-size:12px;border-top:1px solid #eeeeee;padding-top:24px;margin:0;">This is a mandatory security notification. Replies to this email are not monitored.<br>Microsoft Security Services &copy; 2026</p></div></div></div>`
     },
     {
       id: 2,
-      name: "HR: 2026 Employee Benefits",
+      name: "HR: New Policy",
       category: "Human Resources",
-      subject: "Urgent: Review your 2026 Benefits Plan Enrollment",
-      html: `<div style="background-color:#f8f9fa;padding:40px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><div style="max-width:600px;margin:0 auto;background-color:#ffffff;border:1px solid #e0e0e0;border-top:4px solid #007bff;"><div style="padding:40px;"><h1 style="color:#333;font-size:22px;margin:0 0 20px 0;">Benefit Enrollment Period Closing</h1><p style="font-size:15px;color:#444;line-height:1.5;">Dear {{first_name}} {{last_name}},<br><br>The annual open enrollment period for 2026 benefits is coming to a close. Records indicate you have not yet confirmed your selections for the <strong>{{department}}</strong> health and pension plans.</p><p style="font-size:15px;color:#444;line-height:1.5;">Please review and sign your enrollment documents by the end of the business day to ensure uninterrupted coverage.</p><div style="margin:32px 0;"><a href="{{tracking_url}}" style="background-color:#007bff;color:#ffffff;padding:12px 30px;text-decoration:none;border-radius:4px;font-weight:600;font-size:15px;display:inline-block;">Launch HR Portal</a></div><p style="font-size:13px;color:#999;font-style:italic;">Human Resources Department | Global Operations Team</p></div><div style="background-color:#f1f3f5;padding:15px 40px;font-size:11px;color:#777;">This email contains confidential employee information intended for {{email}}.</div></div></div>`
+      subject: "Notice: Mandatory Updated Employee Conduct Policy 2026",
+      html: `<div style="background-color:#f8f9fa;padding:40px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;"><div style="max-width:600px;margin:0 auto;background-color:#ffffff;border:1px solid #e0e0e0;border-top:4px solid #007bff;"><div style="padding:40px;"><h1 style="color:#333;font-size:22px;margin:0 0 20px 0;">New Corporate Policy Implemented</h1><p style="font-size:15px;color:#444;line-height:1.5;">Dear {{first_name}} {{last_name}},<br><br>The Board of Directors has approved an updated Employee Conduct and Data Sensitivity policy for the <strong>{{department}}</strong> department, effective immediately.</p><p style="font-size:15px;color:#444;line-height:1.5;">All employees are required to review and digitally sign the acknowledgement form by the end of their current shift.</p><div style="margin:32px 0;"><a href="{{tracking_url}}" style="background-color:#007bff;color:#ffffff;padding:12px 30px;text-decoration:none;border-radius:4px;font-weight:600;font-size:15px;display:inline-block;">Review Policy Documents</a></div><p style="font-size:13px;color:#999;font-style:italic;">Human Resources Compliance Team | PhishScale Pro Corp</p></div></div></div>`
     },
     {
       id: 3,
-      name: "IT: Unusual Login Activity",
-      category: "Security Support",
-      subject: "Security Alert: Unusual sign-in discovered",
-      html: `<div style="background-color:#fff;padding:40px;font-family:Arial,sans-serif;"><div style="max-width:550px;margin:0 auto;border:1px solid #ddd;padding:32px;"><div style="text-align:center;margin-bottom:24px;"><div style="background-color:#ffcc00;padding:8px 16px;display:inline-block;border-radius:20px;font-size:12px;font-weight:bold;color:#000;">SECURITY ALERT</div></div><h2 style="font-size:20px;color:#111;margin:0 0 16px 0;text-align:center;">Was this you?</h2><p style="font-size:14px;color:#555;line-height:1.6;">We detected a recent sign-in to your account from an unrecognized device or location.</p><table style="width:100%;background-color:#f9f9f9;padding:16px;border-radius:8px;margin-bottom:24px;font-size:14px;"><tr><td style="color:#888;padding:4px 0;">User:</td><td>{{first_name}} {{last_name}}</td></tr><tr><td style="color:#888;padding:4px 0;">Dept:</td><td>{{department}}</td></tr><tr><td style="color:#888;padding:4px 0;">Location:</td><td>Lagos, Nigeria (IP: 102.89.2.4)</td></tr><tr><td style="color:#888;padding:4px 0;">Browser:</td><td>Chrome (Unknown OS)</td></tr></table><p style="font-size:14px;color:#555;line-height:1.6;margin-bottom:24px;">If this wasn't you, your account may be compromised. Please secure your account immediately.</p><div style="text-align:center;"><a href="{{tracking_url}}" style="background-color:#d93025;color:#ffffff;padding:12px 40px;text-decoration:none;border-radius:4px;font-weight:bold;">Secruity Checkup</a></div></div></div>`
-    },
-    {
-      id: 4,
-      name: "Finance: Outstanding Invoice #4492",
-      category: "Accounting",
-      subject: "OVERDUE: Action required on Invoice #4492",
-      html: `<div style="font-family:sans-serif;padding:20px;color:#333;"><h2>Invoice Overdue</h2><p>Our records show an outstanding balance for your recent software procurement in the <strong>{{department}}</strong> department.</p><p>Please review the attached invoice and process payment immediately to avoid service interruption.</p><a href="{{tracking_url}}" style="color:#d93025;font-weight:bold;">Review Unpaid Invoice #4492</a></div>`
-    },
-    {
-      id: 5,
-      name: "Legal: Updated Privacy Policy",
-      category: "Compliance",
-      subject: "Mandatory: Review and Accept New Employee Privacy Policy",
-      html: `<div style="font-family:serif;padding:30px;background:#f0f0f0;"><div style="background:#fff;padding:20px;border:1px solid #ccc;"><h3>Employee Compliance Notice</h3><p>Dear {{first_name}},</p><p>The Legal department has updated the employee data privacy policy. As a member of <strong>{{department}}</strong>, you are required to acknowledge these changes by the end of the week.</p><a href="{{tracking_url}}">Accept Policy Changes</a></div></div>`
-    },
-    {
-      id: 7,
-      name: "Security: Fraudulent Activity Detected",
-      category: "IT Security",
-      subject: "Alert: Corporate Credit Card Fraud Detection",
-      html: `<div style="padding:20px;border:2px solid red;"><h2>Fraud Alert</h2><p>Our system detected suspicious activity on a corporate card registered to the <strong>{{department}}</strong> budget.</p><p>Please verify these transactions immediately: <a href="{{tracking_url}}">Verify Activity</a></p></div>`
+      name: "FedEx: Delivery Failed",
+      category: "Logistics",
+      subject: "Action Required: FedEx Package #882193 Delivery Exception",
+      html: `<div style="background-color:#f4f4f4;padding:40px;font-family:Arial,sans-serif;"><div style="max-width:600px;margin:0 auto;background-color:#ffffff;border-top:5px solid #4d148c;"><div style="padding:30px;"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/FedEx_Corporation_-_Logo.svg/512px-FedEx_Corporation_-_Logo.svg.png" width="100" style="margin-bottom:20px;"><h2 style="color:#333;font-size:20px;">Delivery Exception</h2><p style="color:#555;font-size:15px;line-height:1.5;">Hello {{first_name}},<br><br>We attempted to deliver a package to your office in <strong>{{department}}</strong> today at 10:15 AM, but no one was available to sign for it.</p><p style="color:#555;font-size:15px;">To avoid the package being returned to the sender, please reschedule the delivery within 24 hours.</p><div style="margin:30px 0;"><a href="{{tracking_url}}" style="background-color:#ff6600;color:#ffffff;padding:12px 25px;text-decoration:none;border-radius:4px;font-weight:bold;font-size:14px;">Reschedule Delivery</a></div><p style="color:#999;font-size:12px;">Tracking ID: FDX-8821-XP992<br>FedEx Express Services &copy; 2026</p></div></div></div>`
     }
   ],
   campaigns: [],
