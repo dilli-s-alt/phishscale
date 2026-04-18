@@ -48,39 +48,11 @@ const defaultState = {
       html: `<div style="font-family:serif;padding:30px;background:#f0f0f0;"><div style="background:#fff;padding:20px;border:1px solid #ccc;"><h3>Employee Compliance Notice</h3><p>Dear {{first_name}},</p><p>The Legal department has updated the employee data privacy policy. As a member of <strong>{{department}}</strong>, you are required to acknowledge these changes by the end of the week.</p><a href="{{tracking_url}}">Accept Policy Changes</a></div></div>`
     },
     {
-      id: 6,
-      name: "Executive: Confidential Q3 Roadmap",
-      category: "Management",
-      subject: "Strictly Confidential: Q3 Strategic Product Roadmap",
-      html: `<div style="background:#1a1a1a;color:#eee;padding:40px;font-family:Helvetica;"><h3>INTERNAL ONLY</h3><p>Team,</p><p>Attached is the confidential Q3 roadmap for the <strong>{{department}}</strong> division. Leakage of this document will result in disciplinary action.</p><p><a href="{{tracking_url}}" style="color:#4caf50;">View Roadmap.pdf</a></p></div>`
-    },
-    {
       id: 7,
       name: "Security: Fraudulent Activity Detected",
       category: "IT Security",
       subject: "Alert: Corporate Credit Card Fraud Detection",
       html: `<div style="padding:20px;border:2px solid red;"><h2>Fraud Alert</h2><p>Our system detected suspicious activity on a corporate card registered to the <strong>{{department}}</strong> budget.</p><p>Please verify these transactions immediately: <a href="{{tracking_url}}">Verify Activity</a></p></div>`
-    },
-    {
-      id: 8,
-      name: "Payroll: Performance Bonus Update",
-      category: "Human Resources",
-      subject: "Payroll: Confirmation of Q1 Performance Bonus",
-      html: `<div style="background:#e8f5e9;padding:20px;"><h2>Bonus Confirmation</h2><p>Good news {{first_name}}!</p><p>Your Q1 performance bonus has been approved. View the breakdown for the <strong>{{department}}</strong> team here: <a href="{{tracking_url}}">Bonus Statement</a></p></div>`
-    },
-    {
-      id: 9,
-      name: "Marketing: New Brand Guidelines",
-      category: "Marketing",
-      subject: "Urgent: Update your email signature with new brand assets",
-      html: `<div style="padding:20px;"><h2>New Brand Identity</h2><p>We've launched a new brand identity. All <strong>{{department}}</strong> employees must update their signatures by Monday.</p><a href="{{tracking_url}}">Download Signature Assets</a></div>`
-    },
-    {
-      id: 10,
-      name: "IT: Ticket #8821 Resolved",
-      category: "Support",
-      subject: "ServiceDesk: Ticket #8821 has been marked as resolved",
-      html: `<div style="padding:20px;"><h3>Ticket Resolved</h3><p>The issue reported for <strong>{{department}}</strong> has been fixed. Please rate our service: <a href="{{tracking_url}}">Rate Support Quality</a></p></div>`
     }
   ],
   campaigns: [],

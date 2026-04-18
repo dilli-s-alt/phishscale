@@ -48,7 +48,7 @@ export const resetSystem = async (req, res) => {
       console.warn("Postgres reset/seed aborted (likely not configured or schema mismatch):", dbError.message);
     }
     
-    res.json({ message: "System Factory Reset Complete. 50 targets and 10 templates restored." });
+    res.json({ message: "System Factory Reset Complete. 50 targets and 6 templates restored." });
   } catch (error) {
     console.error("System reset failed:", error);
     res.status(500).json({ error: "Failed to reset system" });
